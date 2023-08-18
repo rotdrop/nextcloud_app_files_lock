@@ -157,6 +157,12 @@ class LockService {
 			if (
 				$known->getType() === $lockScope->getType() && ($known->getOwner() === $lockScope->getOwner() || $known->getToken() === $lockScope->getOwner())
 			) {
+
+				if ($known->getETA() === FileLock::ETA_INFINITE) {
+					$this->logger->notice('keeping existing lock with infinite TTL', ['fileLock' => $known]);
+					return $known;
+				}
+
 				$known->setTimeout(
 					$known->getETA() !== FileLock::ETA_INFINITE ? $known->getTimeout() - $known->getETA() + $this->configService->getTimeoutSeconds() : 0
 				);
